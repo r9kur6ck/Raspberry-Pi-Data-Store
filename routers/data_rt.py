@@ -30,7 +30,7 @@ if idb_rec != None:
 else:
     url = "http://localhost:8086"
     organization = "MyDataServer"
-    token = "jG99-jU4YqMZixUN3IGoBCdQ7iAbekCXPkaM2SEvHXt0lXEQKMDkJppaiXYn66bnsOuaEDZ323k1p3EYIHw-zg=="
+    token = ""
 
 if DEBUG:
     print("url = ", url)

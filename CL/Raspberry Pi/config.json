@@ -1,0 +1,6 @@
+{
+    "server":"192.168.3.3",
+    "port":8000,
+    "channel":"CQCH1",
+    "measurement":"raspi"
+}

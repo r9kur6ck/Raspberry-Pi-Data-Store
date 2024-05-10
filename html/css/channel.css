@@ -1,0 +1,19 @@
+table th,td{
+    border:solid 1px #aaaaaa;
+    text-align: center;
+    vertical-align: top;
+}
+
+table th{
+    padding : 20px 10px;
+    background-color: #aaaaaa;
+}
+
+table td{
+    padding : 20px 10px;
+}
+
+table{
+    width: 100%;
+}
+

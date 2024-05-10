@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>チャネル管理</title>
+    <script src="js/mylib.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/channel.css">
+  </head>
+<body>
+<h1>Myデータ・サーバ：チャネル管理</h1>
+<br>
+<div>
+
+<h2>チャネル一覧</h2>
+<div id="channeltable"></div>
+<br><br>
+<h2>チャネル追加</h2>
+<form action="" id="channel_add_form">
+  ID：<input type="text" name="id" id="channel_id"/><br>
+  チャネル名：<input type="text" name="name" id="channel_name"/><br>
+  オーナー：<input type="text" name="owner" id="channel_owner"/><br>
+  <input type="button" value="登録" onclick="add_channel_act()"/>
+</form>
+<br>
+<br>
+<button onclick="history.back()">戻る</button>
+
+<script>
+
+  function load_channel_table() {
+      document.getElementById('channeltable').lastElementChild.remove();
+      get_channel_list(function(list){
+	  let table = create_channel_table(list);
+	  document.getElementById('channeltable').appendChild(table);
+    
+      });
+  }
+
+  function add_channel_act() {
+      let ch_id = document.getElementById("channel_id").value;
+      let ch_name = document.getElementById("channel_name").value;
+      let ch_owner = document.getElementById("channel_owner").value;
+      console.log("add_channel_act:"+ ch_id + "," + ch_name + "," + ch_owner)
+      /* チャネル登録 */
+      add_channel(ch_id, ch_name, ch_owner, function(res){
+	  /* テーブル再表示 */
+	  load_channel_table();
+      });
+  }
+
+  function delete_channel_act(channel_id) {
+      console.log("delete_channel_act:" + channel_id)
+
+      /* 削除確認 */
+      let msg = channel_id + " チャネルを削除します。\nよろしいですか？";
+      let ret = confirm(msg);
+      if (ret == true) {
+	  /* チャネル削除 */
+	  delete_channel(channel_id, function(res){
+	      /* テーブル再表示 */
+	      load_channel_table();
+	  });
+      }
+      
+  }
+
+  function view_channel_act(channel_id) {
+      console.log("viewe_channel_act:" + channel_id)
+      /* チャネルデータ表示 */
+      window.open("./data.html?channel_id="+channel_id , channel_id);
+  }
+
+  function create_channel_table(list) {
+      /* 取得したチャネルでテーブルを作成 */
+      let table = document.createElement('table');
+      /* ヘッダ */
+      let tr = document.createElement('tr');
+      let th = document.createElement('th');
+      th.textContent = "チャネルID";
+      tr.appendChild(th);
+      th = document.createElement('th');
+      th.textContent = "チャネル名";
+      tr.appendChild(th);
+      th = document.createElement('th');
+      th.textContent = "所有者";
+      tr.appendChild(th);
+      th = document.createElement('th');
+      th.textContent = "操作";
+      tr.appendChild(th);
+      table.appendChild(tr);
+      /* 行 */
+      for (let channel of list) {
+          let tr = document.createElement('tr');
+          let td = document.createElement('td');
+          td.textContent = channel['id'];
+          tr.appendChild(td);
+	  td = document.createElement('td');
+          td.textContent = channel['name'];
+          tr.appendChild(td);
+	  td = document.createElement('td');
+          td.textContent = channel['owner'];
+          tr.appendChild(td);
+	  td = document.createElement('td');
+	  btn = document.createElement("input");
+	  btn.setAttribute("type", "button");
+	  btn.setAttribute("value", "データ表示");
+	  btn.setAttribute("onclick", "view_channel_act('" + channel['id'] + "')");
+          td.appendChild(btn);
+	  btn = document.createElement("input");
+	  btn.setAttribute("type", "button");
+	  btn.setAttribute("value", "削除");
+	  btn.setAttribute("onclick", "delete_channel_act('" + channel['id'] + "')");
+          td.appendChild(btn);
+          tr.appendChild(td);
+	  table.appendChild(tr);
+      }
+      return table;
+  }
+  
+  var channel_list = [];
+  get_channel_list(function(list){
+      let table = create_channel_table(list);
+      document.getElementById('channeltable').appendChild(table);
+    
+  });
+
+</script>
+</body>
+</html>

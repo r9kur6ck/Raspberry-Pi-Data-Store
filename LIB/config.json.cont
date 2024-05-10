@@ -1,0 +1,9 @@
+{
+    "metadb":{
+	"HOST":"mysql",
+	"PORT":"3306",
+	"USER":"root",
+	"PASS":"MyServer@001",
+	"DB":"mydataserver"
+    }
+}

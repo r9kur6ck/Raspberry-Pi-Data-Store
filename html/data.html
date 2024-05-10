@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>データ</title>
+    <script src="js/chart.js"></script>
+    <script src="js/mylib.js"></script>
+  </head>
+<body>
+<h1>Myデータ・サーバ：データ表示</h1>
+<h2 id="channel_name">>チャネル:<h2>
+<div class="main" id="main_area"></div>
+<br>
+<button onclick="window.close()">閉じる</button>
+
+<script>
+
+  /*
+    この画面では、
+    ・出力期間は絞らない
+    ・更新間隔は、1分
+    という仕様で実装する。
+    API的には細かくデータ取得できるので凝った画面を作ってみてください。
+  */
+
+  var channel_id = null;
+  let elm = document.URL.split('?');
+  if (elm[1]) {
+      let param = elm[1].split('=');
+      if (param[0] == "channel_id" && param[1] ) {
+	  channel_id=param[1];
+      }
+  }
+  console.log(channel_id);
+
+  let cn = document.getElementById("channel_name");
+  cn.innerHTML = "チャネル：" + channel_id;
+
+  
+  // 間隔の初期値
+  var interval = 60 * 1000;
+  var mon_h = null;
+  
+  function start_monitor() {
+      let dt = new Date();
+      console.log("start_monitor", dt);
+      mon_h = setInterval(process, interval, interval);
+      process(interval);
+  }
+
+  function process(offset) {
+      console.log("process", offset)
+      load_chart(channel_id);
+  }
+
+  function load_chart(channel_id) {
+      console.log("load_chart:", channel_id);
+      /*
+	画面仕様としては、
+      */
+      let measurement = null;
+      let from = null;
+      let to = null;
+      let m = null;
+      let f = null;
+      let v = null;
+      get_influxdb_data(channel_id, null, null, null, function(list){	/* callback of get_influxdb_data */
+	  console.log("enter get_data callback");
+	  let m_data = {};
+	  let fields = {};
+	  let times = {};
+	  let times_idx = {}
+	  let timestamp_p = {}
+
+	  for (let rec of list['data']) {
+	      console.log(rec);
+	      for (let key in rec) {
+		  console.log(key);
+		  console.log(rec[key]);
+		  if (key == "measurement") {
+		      m = rec[key];
+		  }
+		  else if (key == "timestamp") {
+		      ts = rec[key];
+		  }
+		  else if (key == "source") {
+		      s = rec[key];
+		  }
+		  else {
+		      f = key;
+		      v = rec[key];
+		  }
+	      }
+	      /* measurement */
+	      if (m_data[m] == null) {
+		  m_data[m] = {};
+		  times_idx[m] = -1;
+		  timestamp_p[m] = "20220101000000";
+		  times[m] = [];
+	      }
+	      let idx = times[m].indexOf(ts);
+	      if (idx == -1) {
+		  times_idx[m]++;
+		  idx = times_idx[m];
+		  times[m][times_idx[m]] = ts
+	      }
+	      /* field */
+	      fields = m_data[m];
+	      if (fields[f] == null) {
+		  fields[f] = [];
+	      }
+	      fields[f][idx] = v
+	  }
+	  console.log(times);
+	  console.log(times_idx);
+	  console.log(fields);
+	  console.log(m_data);
+
+	  // 表示領域を全部削除
+	  remove_chart_area();
+	  
+	  for (let m in m_data) {
+	      // 表示する領域を並べる
+	      add_chart_area(m);
+
+	      // ここでIDから名前に書き換える
+	      let c = document.getElementById(m+"_caption");
+	      c.innerHTML = m;
+
+	      // チャート表示
+	      color_list = ["rgb(0,0,255)", "rgb(255,0,0)", "rgb(0,128,0)", "rgb(0,255,255)",
+			    "rgb(255,0,255)", "rgb(0,255,0)", "rgb(255,255,0)", "rgb(128,128,0)", "rgb(128,128,128)",
+			    "rgb(128,0,128)", "rgb(128,0,0)", "rgb(0,0,128)", "rgb(0,128,128)", "rgb(0,0,0)" ];
+	      data = [];
+	      let i = 0;
+	      for (let key in m_data[m]) {
+		  data.push({
+  		      label: key,
+		      fill:false,
+		      lineTension:0,
+		      data:m_data[m][key],
+		      borderColor: color_list[i]
+		      
+		  });
+		  i++;
+	      }
+	      let cv = document.getElementById(m + "_chart");
+	      let mychart = new Chart(cv, {
+		  type: 'line',
+		  data: {
+		      labels:times[m],
+		      datasets:data
+		  }
+	      });
+
+	  }
+      });	/* callback of get_influxdb_data*/
+		    
+  }
+
+
+  // 動的に要素を追加
+  function add_chart_area(monitor_id) {
+	let div_element = document.createElement("div");
+	div_element.setAttribute("class", "monitor");
+	div_element.setAttribute("id", monitor_id + "_area");
+	div_element.innerHTML = '<p class="caption" id="' + monitor_id + '_caption' +'">' + monitor_id + '</p><p class="chart"><canvas id="' + monitor_id + '_chart"></canvas></p>';
+	let parent_object = document.getElementById("main_area");
+	parent_object.appendChild(div_element);
+  }
+
+  function remove_chart_area() {
+      let main_area = document.getElementById("main_area");
+      while(main_area.firstChild){
+	  main_area.removeChild(main_area.firstChild);
+      }
+  }
+  
+  start_monitor();
+  load_chart(channel_id);
+  
+  
+</script>
+</body>
+</html>

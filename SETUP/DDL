@@ -1,0 +1,60 @@
+create database if not exists mydataserver;
+use mydataserver;
+drop table if exists ds_channel;
+drop table if exists ds_influxdb;
+drop table if exists ds_storage;
+drop table if exists ds_ethereum;
+drop table if exists ds_function;
+drop table if exists ds_event;
+
+create table ds_channel(
+       id VARCHAR(100) not null,
+       name VARCHAR(100),
+       owner VARCHAR(100),
+       primary key(id)
+);
+create table ds_influxdb(
+       id VARCHAR(100) not null,
+       name VARCHAR(100),
+       address VARCHAR(100),
+       port INT,
+       token VARCHAR(100),
+       organization VARCHAR(100),
+       primary key(id)
+);
+create table ds_storage(
+       id VARCHAR(100) not null,
+       name VARCHAR(100),
+       address VARCHAR(100),
+       port INT,
+       access_key_id VARCHAR(100),
+       secret_access_key VARCHAR(100),
+       primary key(id)
+);
+create table ds_ethereum(
+       id VARCHAR(100) not null,
+       name VARCHAR(100),
+       address VARCHAR(100),
+       port INT,
+       account VARCHAR(100),
+       password VARCHAR(100),
+       private_key VARCHAR(100),
+       primary key(id)
+);
+create table ds_function(
+       id VARCHAR(100) not null,
+       name VARCHAR(100),
+       address VARCHAR(100),
+       abi VARCHAR(8192),
+       primary key(id)
+);
+create table ds_event(
+       id VARCHAR(100) not null,
+       name VARCHAR(100),
+       url VARCHAR(1024),
+       method VARCHAR(100),
+       act_pre BOOLEAN,
+       act_post BOOLEAN,
+       func_id VARCHAR(100),
+       primary key(id)
+);

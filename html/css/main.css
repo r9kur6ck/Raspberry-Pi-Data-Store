@@ -1,0 +1,30 @@
+.tab{
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.tab-list{
+  display: flex;
+}
+
+.tab-list-item{
+  width: 25%;
+  text-align: center;
+  padding: 8px 0;
+  cursor: pointer;
+}
+
+.tab-contents{
+  background-color: #ffede2;
+  display: none;
+  padding: 20px;
+}
+
+.is-btn-active{
+  background-color: #ffede2;
+  font-weight: bold;
+}
+
+.is-contents-active{
+  display: block;
+}
